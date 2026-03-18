@@ -1,85 +1,85 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <ctype.h>
 #include <string.h>
+#include <ctype.h>
+#define MAXN 1000
 
-char decrypt_char(char c, char key_char)
-{
-    if (isupper(c))
+char* vigenere_encrypt(const char* plaintext, const char* key){
+    int plainttext_len=strlen(plaintext);
+    int key_len=strlen(key);
+    int key_index=0;
+    char* output = malloc(sizeof(char) * (plainttext_len + 1 ));
+    for(int i = 0; i < plainttext_len; i++)
     {
-        int c_val = c - 'A';
-        int k_val = toupper(key_char) - 'A';
-        return ((c_val - k_val + 26) % 26) + 'A';
-    }
-    else if (islower(c))
-    {
-        int c_val = c - 'a';
-        int k_val = tolower(key_char) - 'a';
-        return ((c_val - k_val + 26) % 26) + 'a';
-    }
-    return c;
-}
-
-void read_key(char *key)
-{
-    FILE *file = fopen("key.txt", "r");
-    if (file == NULL)
-    {
-        printf("Cannot open key.txt\n");
-        exit(1);
-    }
-
-    fgets(key, 1000, file);
-    key[strcspn(key, "\n")] = '\0'; // маха newline
-
-    fclose(file);
-}
-
-void decrypt_file()
-{
-    FILE *in = fopen("encrypted.txt", "r");
-    if (in == NULL)
-    {
-        printf("Cannot open encrypted.txt\n");
-        exit(1);
-    }
-
-    FILE *out = fopen("decrypted.txt", "w");
-    if (out == NULL)
-    {
-        printf("Cannot open decrypted.txt\n");
-        fclose(in);
-        exit(1);
-    }
-
-    char key[1000];
-    read_key(key);
-
-    int key_len = strlen(key);
-    int key_index = 0;
-
-    int ch;
-    while ((ch = fgetc(in)) != EOF)
-    {
-        if (isalpha(ch))
+        char symbol=plaintext[i];
+        if(isalpha(symbol))
         {
-            char decrypted = decrypt_char(ch, key[key_index % key_len]);
-            fputc(decrypted, out);
+            char key_symbol=toupper(key[key_index % key_len]);
+            int shift = key_symbol - 'A';
+            if(isupper(symbol))
+            {
+                output[i]=((symbol - 'A' + shift) % 26) + 'A';
+            }
+            else if(islower(symbol))
+            {
+                output[i]=((symbol - 'a' + shift) % 26) + 'a';
+            }
+
             key_index++;
         }
         else
         {
-            fputc(ch, out); // запазва символи
+            output[i] = plaintext[i];
         }
     }
-
-    fclose(in);
-    fclose(out);
+    output[plainttext_len] = '\0';
+    return output;
 }
 
-int main()
-{
-    decrypt_file();
-    printf("Decryption complete -> decrypted.txt\n");
-    return 0;
+char* vigenere_decrypt(const char* cipher, const char* key){
+    int cipher_len=strlen(cipher);
+    int key_len=strlen(key);
+    int key_index=0;
+    char* output = malloc(sizeof(char) * (cipher_len + 1 ));
+    for(int i = 0; i < cipher_len; i++)
+    {
+        char symbol=cipher[i];
+        if(isalpha(symbol))
+        {
+            char key_symbol=toupper(key[key_index % key_len]);
+            int shift = key_symbol - 'A';
+            if(isupper(symbol))
+            {
+                output[i]=((symbol - 'A' - shift + 26) % 26) + 'A';
+            }
+            else if(islower(symbol))
+            {
+                output[i]=((symbol - 'a' - shift + 26) % 26) + 'a';
+            }
+
+            key_index++;
+        }
+        else
+        {
+            output[i] = cipher[i];
+        }
+    }
+    output[cipher_len] = '\0';
+    return output;
+}
+
+int main(){
+    char plaintext[MAXN];
+    scanf("%s", plaintext);
+
+    char key[MAXN];
+    scanf("%s", key);
+    
+    char*cipher=vigenere_encrypt(plaintext,key);
+    printf("Encrypted: %s\n", cipher);
+
+    char*decipher=vigenere_encrypt(cipher,key);
+    printf("Decrypted: %s\n", decipher);
+    return EXIT_SUCCESS;
+
 }
