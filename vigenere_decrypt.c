@@ -78,7 +78,7 @@ int main(){
     char*cipher=vigenere_encrypt(plaintext,key);
     printf("Encrypted: %s\n", cipher);
 
-    char*decipher=vigenere_encrypt(cipher,key);
+    char*decipher=vigenere_decrypt(cipher,key);
     printf("Decrypted: %s\n", decipher);
     return EXIT_SUCCESS;
 
