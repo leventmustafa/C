@@ -41,4 +41,4 @@ int main() {
 
     printf("PIN not found\n");
     return 0;
-}Hash Cracking
+}
